@@ -1,161 +1,170 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meteo Milovice – Počasí & Ovzduší</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <style>
-        :root {
-            --night:#0f172a; --slate:#1e293b; --mist:#f1f5f9; --card:#fff;
-            --border:#e2e8f0; --text:#0f172a; --muted:#64748b; --sky:#0ea5e9;
-            --temp:#f43f5e; --hum:#3b82f6; --pm1:#f59e0b; --pm25:#ef4444;
-            --pm10:#8b5cf6; --avg:#06b6d4;
-        }
-        *{margin:0;padding:0;box-sizing:border-box;}
-        body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--mist);color:var(--text);min-height:100vh;}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meteo Milovice – Počasí & Ovzduší</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+:root{--night:#0f172a;--slate:#1e293b;--mist:#f1f5f9;--card:#fff;--border:#e2e8f0;--text:#0f172a;--muted:#64748b;--sky:#0ea5e9;--temp:#f43f5e;--hum:#3b82f6;--pm1:#f59e0b;--pm25:#ef4444;--pm10:#8b5cf6;--avg:#06b6d4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--mist);color:var(--text);min-height:100vh;}
 
-        /* HEADER */
-        header{background:linear-gradient(135deg,var(--night),var(--slate));color:white;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.35);}
-        .h-title{font-size:1.45em;font-weight:800;display:flex;align-items:center;gap:9px;}
-        .h-sub{font-weight:300;opacity:.45;font-size:.72em;}
-        .h-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-        .live-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:6px 13px;font-size:.78em;font-weight:600;}
-        .live-dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
-        @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
-        .hdr-sel{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:6px 11px;border-radius:7px;font-size:.83em;cursor:pointer;}
-        .hdr-sel option{background:var(--slate);}
-        .hdr-btn{background:var(--sky);border:none;color:white;padding:7px 15px;border-radius:7px;font-size:.83em;font-weight:700;cursor:pointer;transition:.15s;}
-        .hdr-btn:hover{background:#0284c7;transform:translateY(-1px);}
+/* HEADER */
+header{background:linear-gradient(135deg,var(--night),var(--slate));color:white;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:200;box-shadow:0 2px 20px rgba(0,0,0,.35);}
+.h-title{font-size:1.45em;font-weight:800;display:flex;align-items:center;gap:9px;}
+.h-sub{font-weight:300;opacity:.45;font-size:.72em;}
+.h-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.live-badge{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:6px 13px;font-size:.78em;font-weight:600;}
+.live-dot{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.hdr-btn{background:var(--sky);border:none;color:white;padding:7px 15px;border-radius:7px;font-size:.83em;font-weight:700;cursor:pointer;transition:.15s;}
+.hdr-btn:hover{background:#0284c7;transform:translateY(-1px);}
 
-        /* TABS */
-        .tabs{display:flex;gap:8px;background:white;padding:10px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-        .tab{padding:10px 20px;background:var(--mist);border:none;border-radius:8px;cursor:pointer;font-size:.88em;font-weight:600;color:var(--muted);transition:.2s;}
-        .tab:hover{background:#e2e8f0;}
-        .tab.active{background:linear-gradient(135deg,var(--night),#334155);color:white;box-shadow:0 3px 12px rgba(15,23,42,.3);}
-        .tab-content{display:none;}
-        .tab-content.active{display:block;}
+/* TABS */
+.tabs{display:flex;gap:8px;background:white;padding:10px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.tab{padding:10px 20px;background:var(--mist);border:none;border-radius:8px;cursor:pointer;font-size:.88em;font-weight:600;color:var(--muted);transition:.2s;}
+.tab:hover{background:#e2e8f0;}
+.tab.active{background:linear-gradient(135deg,var(--night),#334155);color:white;box-shadow:0 3px 12px rgba(15,23,42,.3);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+main{max-width:1700px;margin:0 auto;padding:22px 18px;}
 
-        main{max-width:1700px;margin:0 auto;padding:22px 18px;}
+/* STATUS */
+#statusBar{font-size:.78em;color:var(--muted);text-align:center;margin-bottom:14px;min-height:18px;}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--sky);border-radius:50%;animation:sp .8s linear infinite;margin-right:5px;vertical-align:middle;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.sec-label{font-size:.67em;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 11px 2px;}
 
-        /* STATUS */
-        #statusBar{font-size:.78em;color:var(--muted);text-align:center;margin-bottom:14px;min-height:18px;}
-        .spin{display:inline-block;width:13px;height:13px;border:2px solid var(--border);border-top-color:var(--sky);border-radius:50%;animation:sp .8s linear infinite;margin-right:5px;vertical-align:middle;}
-        @keyframes sp{to{transform:rotate(360deg)}}
+/* STAT CARDS */
+.stats-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:26px;}
+.stats-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
+.stats-row .stat-card{flex:1;min-width:220px;max-width:340px;}
+@media(max-width:700px){.stats-row{flex-direction:column;}.stats-row .stat-card{max-width:100%;}}
+.stat-card{background:var(--card);padding:26px 22px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);position:relative;overflow:hidden;min-height:320px;display:flex;flex-direction:column;transition:all .3s;border:1px solid var(--border);}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;}
+.stat-card:hover{transform:translateY(-8px);box-shadow:0 14px 36px rgba(0,0,0,.18);}
+.stat-icon{font-size:2.6em;margin-bottom:8px;}
+.stat-label{font-size:.78em;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
+.stat-value{font-size:3em;font-weight:800;line-height:1.05;margin-bottom:4px;}
+.stat-timestamp{font-size:.7em;color:#999;margin-bottom:8px;font-style:italic;}
+.stat-trend{font-size:.88em;font-weight:600;margin:6px 0;}
+.stat-trend.up{color:#28a745;} .stat-trend.down{color:#dc3545;}
+.stat-meta{font-size:.8em;color:#999;margin-top:8px;line-height:1.7;}
+.stat-meta small{font-size:.85em;color:#bbb;}
+.sc-temp .stat-value{color:var(--temp);} .sc-temp::before{background:var(--temp);}
+.sc-hum .stat-value{color:var(--hum);} .sc-hum::before{background:var(--hum);}
+.sc-pm1 .stat-value{color:var(--pm1);} .sc-pm1::before{background:var(--pm1);}
+.sc-pm25 .stat-value{color:var(--pm25);} .sc-pm25::before{background:var(--pm25);}
+.sc-pm10 .stat-value{color:var(--pm10);} .sc-pm10::before{background:var(--pm10);}
+.sc-avg .stat-value{color:var(--avg);} .sc-avg::before{background:var(--avg);}
 
-        .sec-label{font-size:.67em;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:0 0 11px 2px;}
+/* AQI */
+.aqi-box{background:var(--card);border-radius:13px;padding:20px 22px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:24px;}
+.pm-scale{display:flex;height:20px;border-radius:5px;overflow:hidden;margin:9px 0 5px;}
+.pm-scale-seg{flex:1;}
+.pm-scale-labels{display:flex;justify-content:space-between;font-size:.68em;color:var(--muted);}
+.pm-ptr-wrap{position:relative;height:9px;}
+.pm-ptr{height:9px;width:9px;border-radius:50%;position:absolute;top:-12px;transform:translateX(-50%);display:none;}
 
-        /* ── STAT CARDS (styl originálu) ── */
-        .stats-grid{display:flex;flex-direction:column;gap:16px;margin-bottom:26px;}
-        .stats-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;}
-        .stats-row .stat-card{flex:1;min-width:220px;max-width:340px;}
-        @media(max-width:700px){.stats-row{flex-direction:column;}.stats-row .stat-card{max-width:100%;}}
-        .stat-card{background:var(--card);padding:26px 22px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);position:relative;overflow:hidden;min-height:320px;display:flex;flex-direction:column;transition:all .3s;border:1px solid var(--border);}
-        .stat-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;}
-        .stat-card:hover{transform:translateY(-8px);box-shadow:0 14px 36px rgba(0,0,0,.18);}
-        .stat-icon{font-size:2.6em;margin-bottom:8px;}
-        .stat-label{font-size:.78em;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
-        .stat-value{font-size:3em;font-weight:800;line-height:1.05;margin-bottom:4px;}
-        .stat-timestamp{font-size:.7em;color:#999;margin-bottom:8px;font-style:italic;}
-        .stat-trend{font-size:.88em;font-weight:600;margin:6px 0;}
-        .stat-trend.up{color:#28a745;} .stat-trend.down{color:#dc3545;}
-        .stat-meta{font-size:.8em;color:#999;margin-top:8px;line-height:1.7;}
-        .stat-meta small{font-size:.85em;color:#bbb;}
+/* GRAFY */
+.chart-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);min-width:0;}
+.chart-card.full{grid-column:1/-1;}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:15px;margin-bottom:22px;}
+@media(max-width:600px){.charts-grid{grid-template-columns:1fr}}
+.chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:7px;}
+.chart-title{font-size:.91em;font-weight:700;display:flex;align-items:center;gap:6px;}
+.chart-btns{display:flex;gap:5px;}
+.cbtn{background:var(--mist);border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:5px;font-size:.72em;cursor:pointer;transition:.15s;}
+.cbtn:hover{background:#dbeafe;color:var(--sky);border-color:var(--sky);}
+.chart-wrap{position:relative;height:270px;}
+.chart-wrap.tall{height:310px;}
+.chart-sub{font-size:.76em;color:var(--muted);margin-bottom:9px;}
 
-        /* KARTY barevné hodnoty */
-        .sc-temp .stat-value{color:var(--temp);} .sc-temp::before{background:var(--temp);}
-        .sc-hum  .stat-value{color:var(--hum);}  .sc-hum::before{background:var(--hum);}
-        .sc-pm1  .stat-value{color:var(--pm1);}  .sc-pm1::before{background:var(--pm1);}
-        .sc-pm25 .stat-value{color:var(--pm25);} .sc-pm25::before{background:var(--pm25);}
-        .sc-pm10 .stat-value{color:var(--pm10);} .sc-pm10::before{background:var(--pm10);}
-        .sc-avg  .stat-value{color:var(--avg);}  .sc-avg::before{background:var(--avg);}
+/* LEGENDA */
+.leg-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:12px;}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:.76em;font-weight:600;color:var(--muted);cursor:pointer;padding:3px 9px;border-radius:5px;border:1px solid var(--border);transition:.15s;user-select:none;}
+.leg-item:hover{border-color:var(--sky);color:var(--text);}
+.leg-item.off{opacity:.3;}
+.leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 
-        /* AQI */
-        .aqi-box{background:var(--card);border-radius:13px;padding:20px 22px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.07);margin-bottom:24px;}
-        .pm-scale{display:flex;height:20px;border-radius:5px;overflow:hidden;margin:9px 0 5px;}
-        .pm-scale-seg{flex:1;}
-        .pm-scale-labels{display:flex;justify-content:space-between;font-size:.68em;color:var(--muted);}
-        .pm-ptr-wrap{position:relative;height:9px;}
-        .pm-ptr{height:9px;width:9px;border-radius:50%;position:absolute;top:-12px;transform:translateX(-50%);display:none;}
+/* SLIDER */
+.slider-wrap{margin-top:13px;padding:12px;background:#f8fafc;border-radius:8px;}
+.slider-track{position:relative;height:52px;background:#e9ecef;border-radius:5px;overflow:hidden;cursor:pointer;user-select:none;}
+.slider-preview{position:absolute;width:100%;height:100%;opacity:.3;pointer-events:none;}
+.slider-window{position:absolute;top:0;height:100%;background:rgba(14,165,233,.22);border:2px solid var(--sky);border-radius:4px;cursor:move;box-sizing:border-box;}
+.slider-handle{position:absolute;top:0;width:11px;height:100%;background:var(--sky);cursor:ew-resize;z-index:10;}
+.slider-handle.left{left:0;border-radius:3px 0 0 3px;}
+.slider-handle.right{right:0;border-radius:0 3px 3px 0;}
+.slider-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:.72em;color:var(--muted);}
 
-        /* GRAFY */
-        .chart-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);}
-        .chart-card.full{grid-column:1/-1;}
-        .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:15px;margin-bottom:22px;}
-        @media(max-width:600px){.charts-grid{grid-template-columns:1fr}}
-        .chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:7px;}
-        .chart-title{font-size:.91em;font-weight:700;display:flex;align-items:center;gap:6px;}
-        .chart-btns{display:flex;gap:5px;}
-        .cbtn{background:var(--mist);border:1px solid var(--border);color:var(--muted);padding:3px 9px;border-radius:5px;font-size:.72em;cursor:pointer;transition:.15s;}
-        .cbtn:hover{background:#dbeafe;color:var(--sky);border-color:var(--sky);}
-        .chart-wrap{position:relative;height:270px;}
-        .chart-wrap.tall{height:310px;}
+/* SOUHRNNÉ KARTY */
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:22px;}
+.sum-card{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--sky);border-radius:12px;padding:15px 18px;box-shadow:0 1px 4px rgba(0,0,0,.07);}
+.sum-card.s-temp{border-top-color:var(--temp);} .sum-card.s-warm{border-top-color:#f97316;} .sum-card.s-cold{border-top-color:var(--hum);}
+.sum-card.s-air{border-top-color:var(--pm25);} .sum-card.s-pm10{border-top-color:var(--pm10);}
+.sum-lb{font-size:.68em;font-weight:800;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.sum-val{font-size:1.7em;font-weight:800;line-height:1.1;}
+.sum-sub{font-size:.76em;color:var(--muted);margin-top:5px;}
+.sum-bar{height:6px;background:var(--border);border-radius:3px;margin-top:9px;overflow:hidden;}
+.sum-bar div{height:100%;border-radius:3px;}
 
-        /* LEGENDA */
-        .leg-row{display:flex;flex-wrap:wrap;gap:9px;margin-bottom:12px;}
-        .leg-item{display:flex;align-items:center;gap:5px;font-size:.76em;font-weight:600;color:var(--muted);cursor:pointer;padding:3px 9px;border-radius:5px;border:1px solid var(--border);transition:.15s;user-select:none;}
-        .leg-item:hover{border-color:var(--sky);color:var(--text);}
-        .leg-item.off{opacity:.3;}
-        .leg-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+/* KALENDÁŘ DNŮ */
+.cal-wrap{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;}
+.cal-days{display:grid;grid-template-rows:repeat(7,15px);gap:3px;font-size:.62em;color:var(--muted);line-height:15px;}
+.cal-grid{display:grid;grid-template-rows:repeat(7,15px);grid-auto-flow:column;grid-auto-columns:15px;gap:3px;}
+.cal-cell{border-radius:3px;}
+.cal-cell:hover{outline:2px solid var(--night);}
+.cal-void{background:transparent;} .cal-none{background:#e2e8f0;}
+.cal-legend{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:10px;font-size:.7em;color:var(--muted);}
+.cal-legend i{display:inline-block;width:13px;height:13px;border-radius:3px;}
 
-        /* SLIDER */
-        .slider-wrap{margin-top:13px;padding:12px;background:#f8fafc;border-radius:8px;}
-        .slider-track{position:relative;height:52px;background:#e9ecef;border-radius:5px;overflow:hidden;cursor:pointer;user-select:none;}
-        .slider-preview{position:absolute;width:100%;height:100%;opacity:.3;pointer-events:none;}
-        .slider-window{position:absolute;top:0;height:100%;background:rgba(14,165,233,.22);border:2px solid var(--sky);border-radius:4px;cursor:move;box-sizing:border-box;}
-        .slider-handle{position:absolute;top:0;width:11px;height:100%;background:var(--sky);cursor:ew-resize;z-index:10;}
-        .slider-handle.left{left:0;border-radius:3px 0 0 3px;}
-        .slider-handle.right{right:0;border-radius:0 3px 3px 0;}
-        .slider-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:.72em;color:var(--muted);}
+/* TABULKY */
+.table-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);margin-bottom:22px;overflow-x:auto;}
+.data-table{width:100%;border-collapse:collapse;font-size:.84em;}
+.data-table thead tr{background:var(--night);color:white;}
+.data-table th{padding:10px 13px;text-align:left;font-weight:700;font-size:.74em;letter-spacing:.7px;text-transform:uppercase;}
+.data-table td{padding:9px 13px;border-bottom:1px solid var(--border);}
+.data-table tbody tr:last-child td{border-bottom:none;}
+.data-table tbody tr:hover{background:var(--mist);}
 
-        /* PERIOD GRAFY – jeden sloupec, plná šířka */
-        .period-grid{display:flex;flex-direction:column;gap:15px;margin-bottom:22px;}
-        .period-grid .chart-card{width:100%;}
-        .period-grid .chart-wrap{height:300px;}
 
-        /* TABULKY */
-        .table-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);margin-bottom:22px;overflow-x:auto;}
-        .data-table{width:100%;border-collapse:collapse;font-size:.84em;}
-        .data-table thead tr{background:var(--night);color:white;}
-        .data-table th{padding:10px 13px;text-align:left;font-weight:700;font-size:.74em;letter-spacing:.7px;text-transform:uppercase;}
-        .data-table td{padding:9px 13px;border-bottom:1px solid var(--border);}
-        .data-table tbody tr:last-child td{border-bottom:none;}
-        .data-table tbody tr:hover{background:var(--mist);}
+.table-card.tscroll{max-height:440px;overflow:auto;padding-top:0;}
+.table-card.tscroll .data-table th{position:sticky;top:0;background:var(--night);z-index:2;}
 
-        /* HEATMAPA */
-        .heatmap-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);margin-bottom:22px;}
-        .hm-controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
-        .hm-sel{padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-size:.84em;background:white;}
-        .hm-range-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
-        .hm-range-row label{font-size:.78em;color:var(--muted);font-weight:600;}
-        .hm-range-row input[type=range]{flex:1;min-width:140px;max-width:240px;accent-color:var(--sky);}
-        .hm-range-row span{font-size:.78em;font-weight:700;min-width:42px;}
-        .hm-grid-wrap{display:grid;grid-template-columns:52px 1fr;gap:0;width:100%;overflow:hidden;}
-        .hm-y-labels{display:flex;flex-direction:column;}
-        .hm-y-label{font-size:.62em;color:var(--muted);text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;height:19px;}
-        .hm-content{display:flex;flex-direction:column;}
-        .hm-x-labels{display:flex;height:26px;position:relative;border-bottom:1px solid #ddd;}
-        .hm-month-lbl{position:absolute;font-size:.7em;color:var(--muted);font-weight:600;transform:translateX(-50%);top:6px;}
-        .hm-data{display:flex;}
-        .hm-col{display:flex;flex-direction:column;flex:1;min-width:1px;}
-        .hm-cell{height:19px;cursor:pointer;transition:transform .15s;}
-        .hm-cell:hover{transform:scale(1.6);z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4);border:1.5px solid white;}
-        .hm-legend{display:flex;align-items:center;gap:10px;margin-top:13px;padding:9px 12px;background:#f8fafc;border-radius:7px;}
-        .hm-gradient{flex:1;height:22px;border-radius:4px;}
-        .hm-leg-labels{display:flex;justify-content:space-between;font-size:.7em;color:var(--muted);margin-top:3px;}
+/* HEATMAPA */
+.heatmap-card{background:var(--card);border-radius:13px;padding:20px 22px;box-shadow:0 1px 4px rgba(0,0,0,.07);border:1px solid var(--border);margin-bottom:22px;}
+.hm-controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.hm-sel{padding:7px 11px;border:1px solid var(--border);border-radius:7px;font-size:.84em;background:white;}
+.hm-range-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;}
+.hm-range-row label{font-size:.78em;color:var(--muted);font-weight:600;}
+.hm-range-row input[type=range]{flex:1;min-width:140px;max-width:240px;accent-color:var(--sky);}
+.hm-range-row span{font-size:.78em;font-weight:700;min-width:42px;}
+.hm-grid-wrap{display:grid;grid-template-columns:52px 1fr;gap:0;width:100%;overflow:hidden;}
+.hm-y-labels{display:flex;flex-direction:column;}
+.hm-y-label{font-size:.62em;color:var(--muted);text-align:right;padding-right:6px;display:flex;align-items:center;justify-content:flex-end;height:19px;}
+.hm-content{display:flex;flex-direction:column;}
+.hm-x-labels{display:flex;height:26px;position:relative;border-bottom:1px solid #ddd;}
+.hm-month-lbl{position:absolute;font-size:.7em;color:var(--muted);font-weight:600;transform:translateX(-50%);top:6px;}
+.hm-data{display:flex;}
+.hm-col{display:flex;flex-direction:column;flex:1;min-width:1px;}
+.hm-cell{height:19px;cursor:pointer;transition:transform .15s;}
+.hm-cell:hover{transform:scale(1.6);z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.4);border:1.5px solid white;}
+.hm-legend{display:flex;align-items:center;gap:10px;margin-top:13px;padding:9px 12px;background:#f8fafc;border-radius:7px;}
+.hm-gradient{flex:1;height:22px;border-radius:4px;}
+.hm-leg-labels{display:flex;justify-content:space-between;font-size:.7em;color:var(--muted);margin-top:3px;}
 
-        /* FILTRY */
-        .filters{background:white;padding:13px 16px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;border:1px solid var(--border);}
-        .fg{display:flex;align-items:center;gap:7px;}
-        .fg label{font-weight:600;color:var(--sky);font-size:.83em;}
-        .fg select,.fg input{padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:.83em;}
-        .btn{padding:7px 15px;background:linear-gradient(135deg,var(--night),#334155);color:white;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:.83em;transition:.15s;}
-        .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
-
-        @media(max-width:768px){header{padding:14px};main{padding:12px 10px};.stat-value{font-size:2.2em};.stat-card{min-height:260px}}
-    </style>
+/* FILTRY */
+.filters{background:white;padding:13px 16px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:16px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;border:1px solid var(--border);}
+.fg{display:flex;align-items:center;gap:7px;}
+.fg label{font-weight:600;color:var(--sky);font-size:.83em;}
+.fg select,.fg input{padding:7px 9px;border:1px solid var(--border);border-radius:7px;font-size:.83em;}
+.btn{padding:7px 15px;background:linear-gradient(135deg,var(--night),#334155);color:white;border:none;border-radius:7px;cursor:pointer;font-weight:700;font-size:.83em;transition:.15s;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.2);}
+@media(max-width:768px){header{padding:14px}main{padding:12px 10px}.stat-value{font-size:2.2em}.stat-card{min-height:260px}}
+</style>
 </head>
 <body>
 
@@ -166,14 +175,6 @@
     </div>
     <div class="h-right">
         <div class="live-badge"><div class="live-dot"></div>LIVE DATA</div>
-        <select class="hdr-sel" id="rangeSelect" onchange="loadData()">
-            <option value="1">Poslední den</option>
-            <option value="3">Poslední 3 dny</option>
-            <option value="7" selected>Posledních 7 dní</option>
-            <option value="14">Posledních 14 dní</option>
-            <option value="30">Posledních 30 dní</option>
-            <option value="0">Všechna data</option>
-        </select>
         <button class="hdr-btn" onclick="loadData()">↺ Obnovit</button>
     </div>
 </header>
@@ -184,6 +185,7 @@
     <button class="tab" onclick="switchTab('monthly',this)">📆 Měsíční</button>
     <button class="tab" onclick="switchTab('yearly',this)">📋 Roční</button>
     <button class="tab" onclick="switchTab('heatmap',this)">🔥 Heatmapa</button>
+    <button class="tab" onclick="switchTab('timelapse',this)">🎞️ TimeLapse</button>
 </div>
 
 <main>
@@ -204,17 +206,13 @@
                 </select>
             </div>
             <div class="fg"><label>Od:</label><input type="datetime-local" id="dateFrom" onchange="applyFilter()"></div>
-            <div class="fg"><label>Do:</label><input type="datetime-local" id="dateTo"   onchange="applyFilter()"></div>
+            <div class="fg"><label>Do:</label><input type="datetime-local" id="dateTo" onchange="applyFilter()"></div>
             <button class="btn" onclick="loadData()" style="margin-left:auto;">🔄 Obnovit data</button>
         </div>
 
-        <!-- STAT KARTY -->
         <div class="sec-label">Aktuální hodnoty</div>
-        <div class="stats-grid" id="statsGrid">
-            <!-- řádky generuje renderStats() -->
-        </div>
+        <div class="stats-grid" id="statsGrid"></div>
 
-        <!-- AQI -->
         <div class="aqi-box" id="aqiBox" style="display:none;">
             <div class="sec-label" style="margin-bottom:6px;">Index kvality ovzduší (PM2.5)</div>
             <div id="aqiVal" style="font-size:1.65em;font-weight:800;margin-bottom:2px;"></div>
@@ -230,31 +228,27 @@
             </div>
             <div class="pm-scale-labels"><span>0</span><span>12</span><span>35</span><span>55</span><span>150</span><span>250</span><span>500 µg/m³</span></div>
         </div>
-        
-        <div class="sec-label" style="font-size:.67em; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 11px 2px; font-family:'Segoe UI',system-ui,sans-serif;">
-    Živý pohled z meteokamery
-</div>
 
-<div class="camera-card" style="background:var(--card, #fff); padding:20px; border-radius:14px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:26px; border:1px solid var(--border, #e2e8f0); text-align:center; font-family:'Segoe UI',system-ui,sans-serif;">
-    <div class="camera-container" style="max-width:800px; margin:0 auto; border-radius:8px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,.15); border:1px solid var(--border, #e2e8f0); background:#e2e8f0; min-height:200px; display:flex; align-items:center; justify-content:center;">
-        <img id="meteo-kam" src="https://meteosazava.wz.cz/kamera.php" alt="Načítám aktuální snímek z meteokamery..." style="width:100%; height:auto; display:block;">
-    </div>
-    <p style="font-size: 11px; color: var(--muted, #64748b); margin-top: 8px; font-style: italic;">
-        Snímek se automaticky promazává a aktualizuje každých 10 sekund.
-    </p>
-</div>
+        <div class="sec-label">Živý pohled z meteokamery</div>
+        <div class="camera-card" style="background:var(--card, #fff); padding:20px; border-radius:14px; box-shadow:0 2px 10px rgba(0,0,0,.08); margin-bottom:26px; border:1px solid var(--border, #e2e8f0); text-align:center; font-family:'Segoe UI',system-ui,sans-serif;">
+            <div class="camera-container" style="max-width:800px; margin:0 auto; border-radius:8px; overflow:hidden; box-shadow:0 4px 15px rgba(0,0,0,.15); border:1px solid var(--border, #e2e8f0); background:#e2e8f0; min-height:200px; display:flex; align-items:center; justify-content:center;">
+                <img id="meteo-kam" src="https://meteosazava.wz.cz/kamera.php" alt="Načítám aktuální snímek z meteokamery..." style="width:100%; height:auto; display:block;">
+            </div>
+            <p style="font-size: 11px; color: var(--muted, #64748b); margin-top: 8px; font-style: italic;">
+                Snímek se automaticky promazává a aktualizuje každých 10 sekund.
+            </p>
+        </div>
+        <script>
+            // Automatická obnova obrázku každých 10 sekund z Webzdarma serveru
+            setInterval(function() {
+                var img = document.getElementById('meteo-kam');
+                if (img) {
+                    // Timestamp v parametru '?t=' donutí prohlížeč stáhnout nový snímek a nepoužít starou cache
+                    img.src = 'https://meteosazava.wz.cz/kamera.php?t=' + new Date().getTime();
+                }
+            }, 10000);
+        </script>
 
-<script>
-    // Automatická obnova obrázku každých 10 sekund z Webzdarma serveru
-    setInterval(function() {
-        var img = document.getElementById('meteo-kam');
-        if (img) {
-            // Přidaný timestamp v parametru '?t=' donutí prohlížeč stáhnout nový snímek a nepoužít starou cache
-            img.src = 'https://meteosazava.wz.cz/kamera.php?t=' + new Date().getTime();
-        }
-    }, 10000);
-</script>
-        <!-- GRAFY AKTUÁLNĚ -->
         <div class="charts-grid">
             <div class="chart-card full">
                 <div class="chart-hdr">
@@ -283,7 +277,7 @@
                     <div class="chart-btns"><button class="cbtn" onclick="rz('pm')">↺ Reset</button></div>
                 </div>
                 <div class="leg-row">
-                    <div class="leg-item" id="li-p1"  onclick="toggleS('pm',0,'li-p1')"><div class="leg-dot" style="background:var(--pm1)"></div>PM1</div>
+                    <div class="leg-item" id="li-p1" onclick="toggleS('pm',0,'li-p1')"><div class="leg-dot" style="background:var(--pm1)"></div>PM1</div>
                     <div class="leg-item" id="li-p25" onclick="toggleS('pm',1,'li-p25')"><div class="leg-dot" style="background:var(--pm25)"></div>PM2.5</div>
                     <div class="leg-item" id="li-p10" onclick="toggleS('pm',2,'li-p10')"><div class="leg-dot" style="background:var(--pm10)"></div>PM10</div>
                 </div>
@@ -333,7 +327,7 @@
         </div>
 
         <div class="sec-label">Denní přehled</div>
-        <div class="table-card">
+        <div class="table-card tscroll">
             <table class="data-table">
                 <thead><tr><th>Den</th><th>🌡️ Teplota ø</th><th>💧 Vlhkost ø</th><th>🟡 PM1 ø</th><th>🔴 PM2.5 ø</th><th>🟣 PM10 ø</th><th>🔵 Avg.vel. ø</th></tr></thead>
                 <tbody id="miniTbody"><tr><td colspan="7" style="text-align:center;color:var(--muted);padding:16px;">Načítám…</td></tr></tbody>
@@ -355,18 +349,25 @@
                 </select>
             </div>
             <div class="fg"><label>Od:</label><input type="date" id="dFrom" onchange="updateDaily()"></div>
-            <div class="fg"><label>Do:</label><input type="date" id="dTo"   onchange="updateDaily()"></div>
+            <div class="fg"><label>Do:</label><input type="date" id="dTo" onchange="updateDaily()"></div>
         </div>
-        <div class="period-grid">
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🌡️ Denní teploty</div><div class="chart-btns"><button class="cbtn" onclick="rz('dT')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dTChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">💧 Denní vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('dH')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dHChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟡 Denní PM1</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP1')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dP1Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 Denní PM2.5</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP25')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dP25Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 Denní PM10</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP10')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dP10Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔵 Denní avg. vel. částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('dA')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za den</p><div class="chart-wrap"><canvas id="dAChart"></canvas></div></div>
+
+        <div class="sec-label">Souhrn období</div>
+        <div class="sum-grid" id="dSum"></div>
+
+        <div class="sec-label">Kalendář dní · barva podle průměrného PM2.5</div>
+        <div class="table-card"><div id="dCal"></div></div>
+
+        <div class="sec-label">Grafy</div>
+        <div class="charts-grid">
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🌡️💧 Teplota a vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('dW')">↺ Reset</button></div></div><p class="chart-sub">Čára = denní průměr, stínovaná plocha = rozsah min–max teploty. Kolečkem myši přiblížíš.</p><div class="chart-wrap tall"><canvas id="dWChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 PM2.5 za den</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP25')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (15 µg/m³).</p><div class="chart-wrap"><canvas id="dP25Chart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 PM10 za den</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP10')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (45 µg/m³).</p><div class="chart-wrap"><canvas id="dP10Chart"></canvas></div></div>
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🟡🔵 PM1 a průměrná velikost částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('dP1')">↺ Reset</button></div></div><p class="chart-sub">PM1 (µg/m³) s rozsahem min–max a průměrná velikost částic (µm) na pravé ose.</p><div class="chart-wrap"><canvas id="dP1Chart"></canvas></div></div>
         </div>
+
         <div class="sec-label">Tabulka denních hodnot</div>
-        <div class="table-card">
+        <div class="table-card tscroll">
             <table class="data-table">
                 <thead><tr><th>Den</th><th>🌡️ Teplota ø/min/max</th><th>💧 Vlhkost ø/min/max</th><th>🟡 PM1 ø</th><th>🔴 PM2.5 ø</th><th>🟣 PM10 ø</th></tr></thead>
                 <tbody id="dailyTbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">Přepni na tento tab</td></tr></tbody>
@@ -386,18 +387,22 @@
                 </select>
             </div>
             <div class="fg"><label>Od:</label><input type="month" id="mFrom" onchange="updateMonthly()"></div>
-            <div class="fg"><label>Do:</label><input type="month" id="mTo"   onchange="updateMonthly()"></div>
+            <div class="fg"><label>Do:</label><input type="month" id="mTo" onchange="updateMonthly()"></div>
         </div>
-        <div class="period-grid">
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🌡️ Měsíční teploty</div><div class="chart-btns"><button class="cbtn" onclick="rz('mT')">↺</button></div></div><div class="chart-wrap"><canvas id="mTChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">💧 Měsíční vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('mH')">↺</button></div></div><div class="chart-wrap"><canvas id="mHChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟡 Měsíční PM1</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP1')">↺</button></div></div><div class="chart-wrap"><canvas id="mP1Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 Měsíční PM2.5</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP25')">↺</button></div></div><div class="chart-wrap"><canvas id="mP25Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 Měsíční PM10</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP10')">↺</button></div></div><div class="chart-wrap"><canvas id="mP10Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔵 Měsíční avg. vel. částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('mA')">↺</button></div></div><div class="chart-wrap"><canvas id="mAChart"></canvas></div></div>
+
+        <div class="sec-label">Souhrn období</div>
+        <div class="sum-grid" id="mSum"></div>
+
+        <div class="sec-label">Grafy</div>
+        <div class="charts-grid">
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🌡️💧 Teplota a vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('mW')">↺ Reset</button></div></div><p class="chart-sub">Čára = měsíční průměr, stínovaná plocha = rozsah min–max teploty.</p><div class="chart-wrap tall"><canvas id="mWChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 PM2.5 za měsíc</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP25')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (15 µg/m³).</p><div class="chart-wrap"><canvas id="mP25Chart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 PM10 za měsíc</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP10')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (45 µg/m³).</p><div class="chart-wrap"><canvas id="mP10Chart"></canvas></div></div>
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🟡🔵 PM1 a průměrná velikost částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('mP1')">↺ Reset</button></div></div><p class="chart-sub">PM1 (µg/m³) s rozsahem min–max a průměrná velikost částic (µm) na pravé ose.</p><div class="chart-wrap"><canvas id="mP1Chart"></canvas></div></div>
         </div>
+
         <div class="sec-label">Tabulka měsíčních hodnot</div>
-        <div class="table-card">
+        <div class="table-card tscroll">
             <table class="data-table">
                 <thead><tr><th>Měsíc</th><th>🌡️ Teplota ø/min/max</th><th>💧 Vlhkost ø/min/max</th><th>🟡 PM1 ø</th><th>🔴 PM2.5 ø</th><th>🟣 PM10 ø</th></tr></thead>
                 <tbody id="monthlyTbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">Přepni na tento tab</td></tr></tbody>
@@ -405,23 +410,26 @@
         </div>
     </div>
 
-
     <!-- ══════════ TAB: ROČNÍ ══════════ -->
     <div id="tab-yearly" class="tab-content">
         <div class="filters">
             <div class="fg"><label>📅 Rok od:</label><input type="number" id="yFrom" min="2020" max="2035" placeholder="2024" onchange="updateYearly()"></div>
             <div class="fg"><label>Rok do:</label><input type="number" id="yTo" min="2020" max="2035" placeholder="2026" onchange="updateYearly()"></div>
         </div>
-        <div class="period-grid">
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🌡️ Roční teploty</div><div class="chart-btns"><button class="cbtn" onclick="rz('yT')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yTChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">💧 Roční vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('yH')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yHChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟡 Roční PM1</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP1')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yP1Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 Roční PM2.5</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP25')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yP25Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 Roční PM10</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP10')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yP10Chart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔵 Roční avg. vel. částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('yA')">↺</button></div></div><p style="font-size:.76em;color:var(--muted);margin-bottom:9px;">Průměr, min a max za rok</p><div class="chart-wrap"><canvas id="yAChart"></canvas></div></div>
+
+        <div class="sec-label">Souhrn období</div>
+        <div class="sum-grid" id="ySum"></div>
+
+        <div class="sec-label">Grafy</div>
+        <div class="charts-grid">
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🌡️💧 Teplota a vlhkost</div><div class="chart-btns"><button class="cbtn" onclick="rz('yW')">↺ Reset</button></div></div><p class="chart-sub">Čára = roční průměr, stínovaná plocha = rozsah min–max teploty.</p><div class="chart-wrap tall"><canvas id="yWChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🔴 PM2.5 za rok</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP25')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (15 µg/m³).</p><div class="chart-wrap"><canvas id="yP25Chart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-hdr"><div class="chart-title">🟣 PM10 za rok</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP10')">↺ Reset</button></div></div><p class="chart-sub">Barva sloupce = kvalita ovzduší. Přerušovaná čára = doporučení WHO (45 µg/m³).</p><div class="chart-wrap"><canvas id="yP10Chart"></canvas></div></div>
+            <div class="chart-card full"><div class="chart-hdr"><div class="chart-title">🟡🔵 PM1 a průměrná velikost částic</div><div class="chart-btns"><button class="cbtn" onclick="rz('yP1')">↺ Reset</button></div></div><p class="chart-sub">PM1 (µg/m³) s rozsahem min–max a průměrná velikost částic (µm) na pravé ose.</p><div class="chart-wrap"><canvas id="yP1Chart"></canvas></div></div>
         </div>
+
         <div class="sec-label">Tabulka ročních hodnot</div>
-        <div class="table-card">
+        <div class="table-card tscroll">
             <table class="data-table">
                 <thead><tr><th>Rok</th><th>🌡️ Teplota ø/min/max</th><th>💧 Vlhkost ø/min/max</th><th>🟡 PM1 ø</th><th>🔴 PM2.5 ø</th><th>🟣 PM10 ø</th></tr></thead>
                 <tbody id="yearlyTbody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px;">Přepni na tento tab</td></tr></tbody>
@@ -464,6 +472,14 @@
             </div>
         </div>
     </div>
+
+    <!-- ══════════ TAB: TIMELAPSE ══════════ -->
+    <div id="tab-timelapse" class="tab-content">
+        <div class="sec-label">TimeLapse · Milovice › South: Komenského</div>
+        <div class="camera-card" style="background:var(--card);padding:20px;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:26px;border:1px solid var(--border);text-align:center;">
+            <div id="timelapseBox" style="max-width:1000px;margin:0 auto;min-height:200px;"></div>
+        </div>
+    </div>
 </main>
 
 <script>
@@ -475,18 +491,16 @@ const REFRESH_MS = 15 * 60 * 1000;
 
 let rawData = [], curData = [], lastRec = null;
 let charts  = {};
-const hiddenSeries = {};
 let sliders = {};
 let hmDataMin = 0, hmDataMax = 100;
 
 // ═══════════════════════════════════════════════════════
-//  NAČTENÍ DAT
+//  NAČTENÍ DAT (vždy všechna data; každá karta si filtruje sama)
 // ═══════════════════════════════════════════════════════
 async function loadData() {
-    const days = document.getElementById('rangeSelect').value;
     setStatus('<span class="spin"></span> Načítám data…');
     try {
-        const res  = await fetch(`${PHP_URL}?days=${days}&_=${Date.now()}`);
+        const res  = await fetch(`${PHP_URL}?days=0&_=${Date.now()}`);
         const json = await res.json();
         if (!json.success) throw new Error(json.error || 'Neplatná odpověď');
 
@@ -504,12 +518,21 @@ async function loadData() {
         renderStats();
         renderAQI();
         renderMiniTable();
+        // pokud je otevřená jiná záložka, překresli ji s novými daty
+        const act = document.querySelector('.tab-content.active');
+        if (act) {
+            const id = act.id.replace('tab-','');
+            if (id==='daily') updateDaily();
+            if (id==='monthly') updateMonthly();
+            if (id==='yearly') updateYearly();
+            if (id==='heatmap') renderHeatmap(true);
+        }
         setStatus(`✅ ${rawData.length} měření · Poslední: ${fmt(lastRec.dt)} · Aktualizováno: ${fmt(new Date())}`);
     } catch(e) { setStatus('❌ Chyba: '+e.message); }
 }
 
 // ═══════════════════════════════════════════════════════
-//  FILTER
+//  FILTER (záložka Aktuálně)
 // ═══════════════════════════════════════════════════════
 function applyFilter() {
     const range = document.getElementById('currentRange').value;
@@ -528,15 +551,19 @@ function applyFilter() {
 
 function destroyCurrent() {
     ['weather','pm','avg','scatter','distTemp','distPm25'].forEach(n=>{if(charts[n]){charts[n].destroy();charts[n]=null;}});
+    // odregistruj staré listenery sliderů
+    Object.values(sliders).forEach(s=>{
+        document.removeEventListener('mousemove',s.onMove);
+        document.removeEventListener('mouseup',s.onUp);
+    });
     sliders={};
 }
 
 // ═══════════════════════════════════════════════════════
-//  STAT KARTY (styl originálu)
+//  STAT KARTY
 // ═══════════════════════════════════════════════════════
 function renderStats() {
     if (!rawData.length||!lastRec) return;
-    const keys = ['temp','hum','pm1','pm25','pm10','avg'];
     const meta = {
         temp: {cls:'sc-temp', icon:'🌡️', label:'TEPLOTA',        unit:'°C',    prec:1},
         hum:  {cls:'sc-hum',  icon:'💧', label:'VLHKOST',        unit:'%',     prec:0},
@@ -545,11 +572,14 @@ function renderStats() {
         pm10: {cls:'sc-pm10', icon:'🟣', label:'PM10',           unit:'µg/m³', prec:1},
         avg:  {cls:'sc-avg',  icon:'🔵', label:'AVG. VEL. ČÁSIC',unit:'µm',    prec:2},
     };
+    // min / max / průměr se počítají z posledních 7 dní
+    const recent = rawData.filter(d=>d.dt >= new Date(Date.now()-7*86400000));
+    const base = recent.length ? recent : rawData;
 
     function makeCard(k) {
         const m   = meta[k];
         const cur = lastRec[k];
-        const vals = rawData.map(d=>({v:d[k],t:d.dt}));
+        const vals = base.map(d=>({v:d[k],t:d.dt}));
         const allV = vals.map(x=>x.v);
         const mn   = Math.min(...allV), mx = Math.max(...allV);
         const mnT  = vals.find(x=>x.v===mn), mxT = vals.find(x=>x.v===mx);
@@ -573,9 +603,7 @@ function renderStats() {
             </div>
         </div>`;
     }
-    // Řádek 1: počasí (teplota + vlhkost)
     const row1 = `<div class="stats-row">${['temp','hum'].map(makeCard).join('')}</div>`;
-    // Řádek 2: ovzduší (PM1, PM2.5, PM10, avg)
     const row2 = `<div class="stats-row">${['pm1','pm25','pm10','avg'].map(makeCard).join('')}</div>`;
     document.getElementById('statsGrid').innerHTML = row1 + row2;
 }
@@ -609,7 +637,6 @@ function renderAQI() {
 // ═══════════════════════════════════════════════════════
 const ZO = {zoom:{wheel:{enabled:true,speed:.1},pinch:{enabled:true},mode:'x'},pan:{enabled:true,mode:'x'},limits:{x:{min:'original',max:'original'}}};
 
-// Společná osa X pro časové grafy – BEZ ticks.callback (to způsobuje NaN)
 function xScale(unit) {
     return {
         type:'time',
@@ -623,23 +650,7 @@ function xScale(unit) {
     };
 }
 
-function mkChart(id, datasets, yOpts, type) {
-    const el = document.getElementById(id); if(!el) return null;
-    return new Chart(el, {
-        type: type||'line',
-        data: {datasets},
-        options:{
-            responsive:true, maintainAspectRatio:false,
-            plugins:{legend:{display:false}, zoom:ZO, tooltip:{mode:'index',intersect:false,
-                callbacks:{label:c=>` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}`}}},
-            interaction:{mode:'index',intersect:false},
-            scales: Object.assign({x:xScale()}, yOpts||{})
-        }
-    });
-}
-
 function initCurrentCharts(pts) {
-    // Teplota / Vlhkost
     charts.weather = new Chart(document.getElementById('weatherChart'),{
         type:'line',
         data:{datasets:[
@@ -658,7 +669,6 @@ function initCurrentCharts(pts) {
         }
     });
 
-    // PM
     charts.pm = new Chart(document.getElementById('pmChart'),{
         type:'line',
         data:{datasets:[
@@ -674,7 +684,6 @@ function initCurrentCharts(pts) {
         }
     });
 
-    // Avg
     charts.avg = new Chart(document.getElementById('avgChart'),{
         type:'line',
         data:{datasets:[{label:'Avg. vel. (µm)',data:pts.map(d=>({x:d.dt,y:d.avg})),borderColor:'#06b6d4',backgroundColor:'rgba(6,182,212,.1)',borderWidth:2,pointRadius:0,tension:.3,fill:true}]},
@@ -685,7 +694,6 @@ function initCurrentCharts(pts) {
         }
     });
 
-    // Scatter
     charts.scatter = new Chart(document.getElementById('scatterChart'),{
         type:'scatter',
         data:{datasets:[{label:'Teplota vs Vlhkost',data:pts.map(d=>({x:d.temp,y:d.hum})),backgroundColor:'rgba(102,126,234,.45)',pointRadius:3}]},
@@ -693,9 +701,7 @@ function initCurrentCharts(pts) {
             scales:{x:{title:{display:true,text:'Teplota (°C)',font:{weight:'bold'}}},y:{title:{display:true,text:'Vlhkost (%)',font:{weight:'bold'}},min:0,max:100}}}
     });
 
-    // Distribuce teplot
     const tBins = makeHistogram(pts.map(d=>d.temp), 20);
-    if(charts.distTemp) charts.distTemp.destroy();
     charts.distTemp = new Chart(document.getElementById('distTempChart'),{
         type:'bar',
         data:{labels:tBins.labels, datasets:[{label:'Počet měření', data:tBins.counts,
@@ -705,9 +711,7 @@ function initCurrentCharts(pts) {
                     y:{title:{display:true,text:'Počet měření',font:{weight:'bold'}},beginAtZero:true}}}
     });
 
-    // Distribuce PM2.5
     const pBins = makeHistogram(pts.map(d=>d.pm25), 20);
-    if(charts.distPm25) charts.distPm25.destroy();
     charts.distPm25 = new Chart(document.getElementById('distPm25Chart'),{
         type:'bar',
         data:{labels:pBins.labels, datasets:[{label:'Počet měření', data:pBins.counts,
@@ -717,7 +721,6 @@ function initCurrentCharts(pts) {
                     y:{title:{display:true,text:'Počet měření',font:{weight:'bold'}},beginAtZero:true}}}
     });
 
-    // Sliders
     initSlider('w','weather',pts,'temp');
     initSlider('p','pm',pts,'pm25');
     initSlider('a','avg',pts,'avg');
@@ -727,26 +730,22 @@ function initCurrentCharts(pts) {
 }
 
 // ═══════════════════════════════════════════════════════
-//  SLIDERY – OPRAVENÁ VERZE (žádné přetékání)
+//  SLIDERY
 // ═══════════════════════════════════════════════════════
 function initSlider(pfx, chartName, data, prevKey) {
     const win   = document.getElementById(pfx+'Win');
     const track = document.getElementById(pfx+'Slider');
     if (!win||!track) return;
     win.style.left='0%'; win.style.width='100%';
+    const sEl=document.getElementById(pfx+'S'), eEl=document.getElementById(pfx+'E');
+    if(sEl) sEl.textContent=fmt(data[0].dt);
+    if(eEl) eEl.textContent=fmt(data[data.length-1].dt);
 
     let drag=false, res=false, dir=null, sx=0, sl0=0, sw0=0;
 
-    function pct(e) {
-        const r=track.getBoundingClientRect();
-        return ((e.clientX-r.left)/r.width)*100;
-    }
     function getWin() {
         const tr=track.getBoundingClientRect(), wr=win.getBoundingClientRect();
-        return {
-            l:((wr.left -tr.left)/tr.width)*100,
-            w:(wr.width/tr.width)*100
-        };
+        return { l:((wr.left-tr.left)/tr.width)*100, w:(wr.width/tr.width)*100 };
     }
     function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
 
@@ -831,73 +830,174 @@ function drawPrev(canvasId,data,key) {
 //  AGREGACE
 // ═══════════════════════════════════════════════════════
 const AVG = arr=>arr.length?arr.reduce((a,b)=>a+b,0)/arr.length:0;
+function dkey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-function aggregateDaily(data) {
-    const m={};
-    data.forEach(d=>{
-        const k=d.dt.toISOString().split('T')[0];
-        if(!m[k]) m[k]={date:new Date(k+'T12:00:00'),temp:[],hum:[],pm1:[],pm25:[],pm10:[],avg:[]};
-        m[k].temp.push(d.temp); m[k].hum.push(d.hum); m[k].avg.push(d.avg);
-        m[k].pm1.push(d.pm1);  m[k].pm25.push(d.pm25); m[k].pm10.push(d.pm10);
-    });
-    return Object.values(m).map(x=>({
-        date:x.date,
+function stats(x){
+    return {
         tAvg:AVG(x.temp),tMin:Math.min(...x.temp),tMax:Math.max(...x.temp),
         hAvg:AVG(x.hum), hMin:Math.min(...x.hum), hMax:Math.max(...x.hum),
         p1Avg:AVG(x.pm1),p1Min:Math.min(...x.pm1),p1Max:Math.max(...x.pm1),
         p25Avg:AVG(x.pm25),p25Min:Math.min(...x.pm25),p25Max:Math.max(...x.pm25),
         p10Avg:AVG(x.pm10),p10Min:Math.min(...x.pm10),p10Max:Math.max(...x.pm10),
         aAvg:AVG(x.avg),aMin:Math.min(...x.avg),aMax:Math.max(...x.avg)
-    })).sort((a,b)=>a.date-b.date);
+    };
+}
+function pushRec(o,d){
+    o.temp.push(d.temp); o.hum.push(d.hum); o.avg.push(d.avg);
+    o.pm1.push(d.pm1); o.pm25.push(d.pm25); o.pm10.push(d.pm10);
+}
+const newBucket=()=>({temp:[],hum:[],pm1:[],pm25:[],pm10:[],avg:[]});
+
+function aggregateDaily(data) {
+    const m={};
+    data.forEach(d=>{
+        const k=dkey(d.dt);
+        if(!m[k]) m[k]=Object.assign(newBucket(),{date:new Date(k+'T12:00:00')});
+        pushRec(m[k],d);
+    });
+    return Object.values(m).map(x=>Object.assign({date:x.date},stats(x))).sort((a,b)=>a.date-b.date);
 }
 
 function aggregateMonthly(data) {
     const m={};
     data.forEach(d=>{
         const k=`${d.dt.getFullYear()}-${String(d.dt.getMonth()+1).padStart(2,'0')}`;
-        if(!m[k]) m[k]={date:new Date(d.dt.getFullYear(),d.dt.getMonth(),15),temp:[],hum:[],pm1:[],pm25:[],pm10:[],avg:[]};
-        m[k].temp.push(d.temp); m[k].hum.push(d.hum); m[k].avg.push(d.avg);
-        m[k].pm1.push(d.pm1);  m[k].pm25.push(d.pm25); m[k].pm10.push(d.pm10);
+        if(!m[k]) m[k]=Object.assign(newBucket(),{date:new Date(d.dt.getFullYear(),d.dt.getMonth(),15)});
+        pushRec(m[k],d);
     });
-    return Object.values(m).map(x=>({
-        date:x.date,
-        tAvg:AVG(x.temp),tMin:Math.min(...x.temp),tMax:Math.max(...x.temp),
-        hAvg:AVG(x.hum), hMin:Math.min(...x.hum), hMax:Math.max(...x.hum),
-        p1Avg:AVG(x.pm1),p1Min:Math.min(...x.pm1),p1Max:Math.max(...x.pm1),
-        p25Avg:AVG(x.pm25),p25Min:Math.min(...x.pm25),p25Max:Math.max(...x.pm25),
-        p10Avg:AVG(x.pm10),p10Min:Math.min(...x.pm10),p10Max:Math.max(...x.pm10),
-        aAvg:AVG(x.avg),aMin:Math.min(...x.avg),aMax:Math.max(...x.avg)
-    })).sort((a,b)=>a.date-b.date);
+    return Object.values(m).map(x=>Object.assign({date:x.date},stats(x))).sort((a,b)=>a.date-b.date);
+}
+
+function aggregateYearly(data) {
+    const m={};
+    data.forEach(d=>{
+        const k=d.dt.getFullYear();
+        if(!m[k]) m[k]=Object.assign(newBucket(),{year:k});
+        pushRec(m[k],d);
+    });
+    return Object.values(m).map(x=>Object.assign({year:x.year,date:new Date(x.year,6,1)},stats(x))).sort((a,b)=>a.year-b.year);
 }
 
 // ═══════════════════════════════════════════════════════
-//  PERIOD CHARTS (denní / měsíční)
+//  BARVY A LIMITY (denní doporučení WHO)
 // ═══════════════════════════════════════════════════════
-function renderPeriod(agg, pfx, unit) {
-    const xs=xScale(unit);
-    const defs=[
-        {n:pfx+'T',  id:pfx+'TChart',   lbl:'Teplota',  c:'#f43f5e', avg:'tAvg',  min:'tMin',  max:'tMax'},
-        {n:pfx+'H',  id:pfx+'HChart',   lbl:'Vlhkost',  c:'#3b82f6', avg:'hAvg',  min:'hMin',  max:'hMax'},
-        {n:pfx+'P1', id:pfx+'P1Chart',  lbl:'PM1',      c:'#f59e0b', avg:'p1Avg', min:'p1Min', max:'p1Max'},
-        {n:pfx+'P25',id:pfx+'P25Chart', lbl:'PM2.5',    c:'#ef4444', avg:'p25Avg',min:'p25Min',max:'p25Max'},
-        {n:pfx+'P10',id:pfx+'P10Chart', lbl:'PM10',     c:'#8b5cf6', avg:'p10Avg',min:'p10Min',max:'p10Max'},
-        {n:pfx+'A',  id:pfx+'AChart',   lbl:'Avg. vel.',c:'#06b6d4', avg:'aAvg',  min:'aMin',  max:'aMax'},
-    ];
-    defs.forEach(d=>{
-        if(charts[d.n]) charts[d.n].destroy();
-        const el=document.getElementById(d.id); if(!el) return;
-        charts[d.n]=new Chart(el,{
-            type:'line',
-            data:{datasets:[
-                {label:'Průměr', data:agg.map(x=>({x:x.date,y:x[d.avg]})), borderColor:d.c,        borderWidth:2.5, pointRadius:2, tension:.3, fill:false},
-                {label:'Min',    data:agg.map(x=>({x:x.date,y:x[d.min]})), borderColor:d.c+'88',   borderWidth:1,   pointRadius:0, tension:.3, fill:false, borderDash:[4,3]},
-                {label:'Max',    data:agg.map(x=>({x:x.date,y:x[d.max]})), borderColor:d.c+'88',   borderWidth:1,   pointRadius:0, tension:.3, fill:false, borderDash:[4,3]},
-            ]},
-            options:{responsive:true,maintainAspectRatio:false,
-                plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10}}},zoom:ZO},
-                scales:{x:xs,y:{grid:{color:'rgba(0,0,0,.04)'}}}}
-        });
+const WHO={pm25:15,pm10:45};
+function pm25Col(v){return v<=12?'#22c55e':v<=35?'#84cc16':v<=55?'#eab308':v<=150?'#f97316':v<=250?'#ef4444':'#7e22ce';}
+function pm10Col(v){return v<=20?'#22c55e':v<=40?'#84cc16':v<=50?'#eab308':v<=100?'#f97316':v<=150?'#ef4444':'#7e22ce';}
+
+// ═══════════════════════════════════════════════════════
+//  SOUHRNNÉ KARTY
+// ═══════════════════════════════════════════════════════
+function renderSummary(id, agg, daily, noun, lblFn) {
+    const el=document.getElementById(id); if(!el) return;
+    if(!agg.length){el.innerHTML='<p style="color:var(--muted);font-size:.85em;">Žádná data</p>';return;}
+    const pick=(f,mx)=>agg.reduce((b,x)=>(mx?f(x)>f(b):f(x)<f(b))?x:b,agg[0]);
+    const warm=pick(x=>x.tAvg,true), cold=pick(x=>x.tAvg,false), bad=pick(x=>x.p25Avg,true);
+    const n=daily.length;
+    const o25=daily.filter(x=>x.p25Avg>WHO.pm25).length;
+    const o10=daily.filter(x=>x.p10Avg>WHO.pm10).length;
+    const card=(cls,lb,val,sub,bar)=>`<div class="sum-card ${cls}"><div class="sum-lb">${lb}</div><div class="sum-val">${val}</div><div class="sum-sub">${sub}</div>${bar||''}</div>`;
+    const bar=(o,col)=>`<div class="sum-bar"><div style="width:${n?(o/n*100):0}%;background:${col}"></div></div>`;
+    el.innerHTML=[
+        card('s-temp','🌡️ Průměrná teplota',AVG(agg.map(x=>x.tAvg)).toFixed(1)+' °C','ø vlhkost '+AVG(agg.map(x=>x.hAvg)).toFixed(0)+' %'),
+        card('s-warm','🔥 Nejteplejší '+noun,warm.tAvg.toFixed(1)+' °C',lblFn(warm)+' · max '+warm.tMax.toFixed(1)+' °C'),
+        card('s-cold','❄️ Nejchladnější '+noun,cold.tAvg.toFixed(1)+' °C',lblFn(cold)+' · min '+cold.tMin.toFixed(1)+' °C'),
+        card('s-air','😷 Nejhorší ovzduší ('+noun+')',bad.p25Avg.toFixed(1)+' µg/m³',lblFn(bad)+' · PM2.5 ø'),
+        card('s-air','🔴 Dny nad limitem PM2.5',o25+' / '+n,'dní nad doporučením WHO ('+WHO.pm25+' µg/m³)',bar(o25,'#ef4444')),
+        card('s-pm10','🟣 Dny nad limitem PM10',o10+' / '+n,'dní nad doporučením WHO ('+WHO.pm10+' µg/m³)',bar(o10,'#8b5cf6'))
+    ].join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  KALENDÁŘ DNŮ
+// ═══════════════════════════════════════════════════════
+function renderCalendar(agg) {
+    const el=document.getElementById('dCal'); if(!el) return;
+    if(!agg.length){el.innerHTML='<p style="color:var(--muted);font-size:.85em;">Žádná data</p>';return;}
+    const map={}; agg.forEach(x=>map[dkey(x.date)]=x);
+    const first=new Date(agg[0].date), last=agg[agg.length-1].date;
+    const st=new Date(first); st.setDate(st.getDate()-((st.getDay()+6)%7)); // pondělí
+    const fk=dkey(first);
+    let cells='';
+    for(let d=new Date(st); d<=last; d.setDate(d.getDate()+1)){
+        const k=dkey(d), x=map[k];
+        if(x) cells+=`<div class="cal-cell" style="background:${pm25Col(x.p25Avg)}" title="${d.toLocaleDateString('cs-CZ')} – PM2.5 ø ${x.p25Avg.toFixed(1)} µg/m³ · ${x.tAvg.toFixed(1)} °C"></div>`;
+        else cells+=`<div class="cal-cell ${k<fk?'cal-void':'cal-none'}" title="${d.toLocaleDateString('cs-CZ')} – bez dat"></div>`;
+    }
+    const leg=[['#22c55e','≤ 12'],['#84cc16','≤ 35'],['#eab308','≤ 55'],['#f97316','≤ 150'],['#ef4444','≤ 250'],['#7e22ce','> 250']]
+        .map(([c,t])=>`<i style="background:${c}"></i>${t}`).join(' ');
+    el.innerHTML=`<div class="cal-wrap"><div class="cal-days"><span>Po</span><span></span><span>St</span><span></span><span>Pá</span><span></span><span>Ne</span></div><div class="cal-grid">${cells}</div></div>
+        <div class="cal-legend">PM2.5 µg/m³: ${leg} <i class="cal-none"></i>bez dat</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+//  GRAFY PRO DENNÍ / MĚSÍČNÍ / ROČNÍ ZÁLOŽKU
+// ═══════════════════════════════════════════════════════
+function periodCharts(agg, p, unit) {
+    const tf={day:'dd.MM.yyyy',month:'MM.yyyy',year:'yyyy'}[unit];
+    const xs=()=>({type:'time',offset:true,
+        time:{unit:unit,tooltipFormat:tf,displayFormats:{day:'dd.MM',month:'MM.yyyy',year:'yyyy'}},
+        ticks:{maxRotation:0,autoSkip:true,maxTicksLimit:12},grid:{display:false}});
+    const pts=k=>agg.map(x=>({x:x.date,y:x[k]}));
+    const opts=(scales,extraTip)=>({
+        responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{
+            zoom:ZO,
+            legend:{position:'top',align:'end',labels:{boxWidth:12,usePointStyle:true,font:{size:11},filter:i=>!i.text.startsWith('~')}},
+            tooltip:{callbacks:Object.assign({label:c=>` ${c.dataset.label.replace('~','')}: ${c.parsed.y.toFixed(1)}`},extraTip||{})}
+        },
+        scales:Object.assign({x:xs()},scales)
     });
+    const mk=(key,id,cfg)=>{
+        if(charts[key]){charts[key].destroy();charts[key]=null;}
+        const el=document.getElementById(id); if(!el) return;
+        charts[key]=new Chart(el,cfg);
+    };
+    const pr=agg.length>40?0:3;
+    const grid={color:'rgba(0,0,0,.05)'};
+
+    // 1) Teplota + vlhkost
+    mk(p+'W',p+'WChart',{type:'line',data:{datasets:[
+        {label:'~Min',data:pts('tMin'),borderWidth:0,pointRadius:0,fill:false,yAxisID:'yT'},
+        {label:'~Max',data:pts('tMax'),borderWidth:0,pointRadius:0,fill:'-1',backgroundColor:'rgba(244,63,94,.16)',yAxisID:'yT'},
+        {label:'Teplota ø (°C)',data:pts('tAvg'),borderColor:'#f43f5e',backgroundColor:'#f43f5e',borderWidth:2.5,pointRadius:pr,tension:.3,yAxisID:'yT'},
+        {label:'Vlhkost ø (%)',data:pts('hAvg'),borderColor:'#3b82f6',backgroundColor:'#3b82f6',borderWidth:2,borderDash:[5,3],pointRadius:0,tension:.3,yAxisID:'yH'}
+    ]},options:opts({
+        yT:{type:'linear',position:'left',title:{display:true,text:'°C',color:'#f43f5e',font:{weight:'bold'}},ticks:{color:'#f43f5e'},grid},
+        yH:{type:'linear',position:'right',min:0,max:100,title:{display:true,text:'%',color:'#3b82f6',font:{weight:'bold'}},ticks:{color:'#3b82f6'},grid:{drawOnChartArea:false}}
+    })});
+
+    // 2) PM2.5 a 3) PM10 – sloupce obarvené podle kvality + WHO limit
+    const pmBar=(key,id,avgK,maxK,colFn,who,lbl)=>mk(key,id,{type:'bar',data:{datasets:[
+        {type:'bar',label:'~'+lbl+' ø',data:pts(avgK),backgroundColor:agg.map(x=>colFn(x[avgK])),borderRadius:3,order:2},
+        {type:'line',label:'Doporučení WHO ('+who+')',data:agg.map(x=>({x:x.date,y:who})),borderColor:'#0f172a',borderDash:[6,4],borderWidth:1.5,pointRadius:0,order:1}
+    ]},options:opts({y:{beginAtZero:true,title:{display:true,text:'µg/m³',font:{weight:'bold'}},grid}},
+        {afterBody:items=>{const x=agg[items[0].dataIndex];return x?'Max: '+x[maxK].toFixed(1)+' µg/m³':'';}})});
+    pmBar(p+'P25',p+'P25Chart','p25Avg','p25Max',pm25Col,WHO.pm25,'PM2.5');
+    pmBar(p+'P10',p+'P10Chart','p10Avg','p10Max',pm10Col,WHO.pm10,'PM10');
+
+    // 4) PM1 + průměrná velikost částic
+    mk(p+'P1',p+'P1Chart',{type:'line',data:{datasets:[
+        {label:'~Min',data:pts('p1Min'),borderWidth:0,pointRadius:0,fill:false,yAxisID:'yP'},
+        {label:'~Max',data:pts('p1Max'),borderWidth:0,pointRadius:0,fill:'-1',backgroundColor:'rgba(245,158,11,.16)',yAxisID:'yP'},
+        {label:'PM1 ø (µg/m³)',data:pts('p1Avg'),borderColor:'#f59e0b',backgroundColor:'#f59e0b',borderWidth:2.5,pointRadius:pr,tension:.3,yAxisID:'yP'},
+        {label:'Ø velikost částic (µm)',data:pts('aAvg'),borderColor:'#06b6d4',backgroundColor:'#06b6d4',borderWidth:2,borderDash:[5,3],pointRadius:0,tension:.3,yAxisID:'yA'}
+    ]},options:opts({
+        yP:{type:'linear',position:'left',beginAtZero:true,title:{display:true,text:'µg/m³',color:'#f59e0b',font:{weight:'bold'}},ticks:{color:'#f59e0b'},grid},
+        yA:{type:'linear',position:'right',title:{display:true,text:'µm',color:'#06b6d4',font:{weight:'bold'}},ticks:{color:'#06b6d4'},grid:{drawOnChartArea:false}}
+    })});
+}
+
+function tableRows(agg, labelFn) {
+    return agg.slice().reverse().map(x=>`<tr>
+        <td><strong>${labelFn(x)}</strong></td>
+        <td style="color:var(--temp)">${x.tAvg.toFixed(1)} / ${x.tMin.toFixed(1)} / ${x.tMax.toFixed(1)} °C</td>
+        <td style="color:var(--hum)">${x.hAvg.toFixed(0)} / ${x.hMin.toFixed(0)} / ${x.hMax.toFixed(0)} %</td>
+        <td style="color:var(--pm1)">${x.p1Avg.toFixed(1)}</td>
+        <td style="color:var(--pm25)">${x.p25Avg.toFixed(1)}</td>
+        <td style="color:var(--pm10)">${x.p10Avg.toFixed(1)}</td>
+    </tr>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════
@@ -912,17 +1012,11 @@ function updateDaily() {
     if(to) data=data.filter(d=>d.dt<=new Date(to+'T23:59:59'));
     if(!fr&&!to&&range!=='all'){const c=new Date();c.setDate(c.getDate()-parseInt(range));data=data.filter(d=>d.dt>=c);}
     const agg=aggregateDaily(data);
-    renderPeriod(agg,'d','day');
-    // Tabulka
-    const rows=agg.slice().reverse().map(x=>`<tr>
-        <td><strong>${x.date.toLocaleDateString('cs-CZ',{weekday:'short',day:'2-digit',month:'2-digit'})}</strong></td>
-        <td style="color:var(--temp)">${x.tAvg.toFixed(1)} / ${x.tMin.toFixed(1)} / ${x.tMax.toFixed(1)} °C</td>
-        <td style="color:var(--hum)">${x.hAvg.toFixed(0)} / ${x.hMin.toFixed(0)} / ${x.hMax.toFixed(0)} %</td>
-        <td style="color:var(--pm1)">${x.p1Avg.toFixed(1)}</td>
-        <td style="color:var(--pm25)">${x.p25Avg.toFixed(1)}</td>
-        <td style="color:var(--pm10)">${x.p10Avg.toFixed(1)}</td>
-    </tr>`).join('');
-    document.getElementById('dailyTbody').innerHTML=rows||noData(6);
+    const dl=x=>x.date.toLocaleDateString('cs-CZ',{day:'2-digit',month:'2-digit',year:'numeric'});
+    renderSummary('dSum',agg,agg,'den',dl);
+    renderCalendar(agg);
+    periodCharts(agg,'d','day');
+    document.getElementById('dailyTbody').innerHTML=tableRows(agg,x=>x.date.toLocaleDateString('cs-CZ',{weekday:'short',day:'2-digit',month:'2-digit'}))||noData(6);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -938,16 +1032,26 @@ function updateMonthly() {
     if(to){const[y,mo]=to.split('-'); data=data.filter(d=>d.dt<=new Date(+y,+mo,0,23,59,59));}
     if(!fr&&!to&&range!=='all'){const c=new Date();c.setMonth(c.getMonth()-parseInt(range));data=data.filter(d=>d.dt>=c);}
     const agg=aggregateMonthly(data);
-    renderPeriod(agg,'m','month');
-    const rows=agg.slice().reverse().map(x=>`<tr>
-        <td><strong>${CZM[x.date.getMonth()]} ${x.date.getFullYear()}</strong></td>
-        <td style="color:var(--temp)">${x.tAvg.toFixed(1)} / ${x.tMin.toFixed(1)} / ${x.tMax.toFixed(1)} °C</td>
-        <td style="color:var(--hum)">${x.hAvg.toFixed(0)} / ${x.hMin.toFixed(0)} / ${x.hMax.toFixed(0)} %</td>
-        <td style="color:var(--pm1)">${x.p1Avg.toFixed(1)}</td>
-        <td style="color:var(--pm25)">${x.p25Avg.toFixed(1)}</td>
-        <td style="color:var(--pm10)">${x.p10Avg.toFixed(1)}</td>
-    </tr>`).join('');
-    document.getElementById('monthlyTbody').innerHTML=rows||noData(6);
+    const ml=x=>CZM[x.date.getMonth()]+' '+x.date.getFullYear();
+    renderSummary('mSum',agg,aggregateDaily(data),'měsíc',ml);
+    periodCharts(agg,'m','month');
+    document.getElementById('monthlyTbody').innerHTML=tableRows(agg,ml)||noData(6);
+}
+
+// ═══════════════════════════════════════════════════════
+//  TAB: ROČNÍ
+// ═══════════════════════════════════════════════════════
+function updateYearly() {
+    if (!rawData.length) return;
+    const yf=document.getElementById('yFrom').value;
+    const yt=document.getElementById('yTo').value;
+    let data=[...rawData];
+    if(yf) data=data.filter(d=>d.dt.getFullYear()>=parseInt(yf));
+    if(yt) data=data.filter(d=>d.dt.getFullYear()<=parseInt(yt));
+    const agg=aggregateYearly(data);
+    renderSummary('ySum',agg,aggregateDaily(data),'rok',x=>String(x.year));
+    periodCharts(agg,'y','year');
+    document.getElementById('yearlyTbody').innerHTML=tableRows(agg,x=>x.year)||noData(6);
 }
 
 // ═══════════════════════════════════════════════════════
@@ -968,7 +1072,7 @@ function renderMiniTable() {
 }
 
 // ═══════════════════════════════════════════════════════
-//  HEATMAPA
+//  HEATMAPA (vždy celý vybraný rok, bez filtru období)
 // ═══════════════════════════════════════════════════════
 function populateYearSel() {
     const sel=document.getElementById('hmYear');
@@ -996,8 +1100,7 @@ function renderHeatmap(recalc=true) {
     if(!rawData.length) return;
     const year=+document.getElementById('hmYear').value;
     const metric=document.getElementById('hmMetric').value;
-    const keyMap={temp:'temp',hum:'hum',pm1:'pm1',pm25:'pm25',pm10:'pm10'};
-    const key=keyMap[metric];
+    const key=metric;
     const leap=isLeap(year), days=leap?366:365;
 
     const mat=Array.from({length:days},()=>Array.from({length:24},()=>[]));
@@ -1043,12 +1146,10 @@ function renderHeatmap(recalc=true) {
     const wrap=document.getElementById('hmGrid'); wrap.innerHTML='';
     const grid=document.createElement('div'); grid.className='hm-grid-wrap';
 
-    // Y labels
     const yCol=document.createElement('div'); yCol.className='hm-y-labels';
     for(let h=0;h<24;h++){const l=document.createElement('div');l.className='hm-y-label';l.textContent=String(h).padStart(2,'0')+':00';yCol.appendChild(l);}
     grid.appendChild(yCol);
 
-    // Content
     const cont=document.createElement('div'); cont.className='hm-content';
     const xRow=document.createElement('div'); xRow.className='hm-x-labels';
     const diM=[31,leap?29:28,31,30,31,30,31,31,30,31,30,31];
@@ -1090,81 +1191,12 @@ function lerpRgb(a,b,t){return `rgb(${Math.round(a[0]+(b[0]-a[0])*t)},${Math.rou
 function tempCol(v){
     const s=[[-10,[10,42,110]],[0,[21,101,192]],[5,[66,165,245]],[10,[178,235,242]],
              [15,[255,249,196]],[20,[255,204,0]],[25,[255,109,0]],[30,[229,57,53]],[40,[123,0,0]]];
-    for(let i=0;i<s.length-1;i++){const[t0,c0]=s[i],[t1,c1]=s[i+1];if(v<=t1){const r=(v-t0)/(t1-t0);return `rgb(${Math.round(c0[0]+(c1[0]-c0[0])*r)},${Math.round(c0[1]+(c1[1]-c0[1])*r)},${Math.round(c0[2]+(c1[2]-c0[2])*r)})`;}}
+    for(let i=0;i<s.length-1;i++){const[t0,c0]=s[i],[t1,c1]=s[i+1];if(v<=t1){const r=Math.max(0,(v-t0)/(t1-t0));return `rgb(${Math.round(c0[0]+(c1[0]-c0[0])*r)},${Math.round(c0[1]+(c1[1]-c0[1])*r)},${Math.round(c0[2]+(c1[2]-c0[2])*r)})`;}}
     return 'rgb(123,0,0)';
 }
 function isLeap(y){return(y%4===0&&y%100!==0)||y%400===0;}
-function doy(d){const s=new Date(d.getFullYear(),0,1,0,0,0);const loc=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0);return Math.floor((loc-s)/86400000);}
+function doy(d){const s=new Date(d.getFullYear(),0,1,0,0,0);const loc=new Date(d.getFullYear(),d.getMonth(),d.getDate(),0,0,0);return Math.round((loc-s)/86400000);}
 function doyToDate(n,y){const d=new Date(y,0,1);d.setDate(d.getDate()+n);return d;}
-
-// ═══════════════════════════════════════════════════════
-//  TAB: ROČNÍ
-// ═══════════════════════════════════════════════════════
-function aggregateYearly(data) {
-    const m={};
-    data.forEach(d=>{
-        const k=d.dt.getFullYear();
-        if(!m[k]) m[k]={year:k,temp:[],hum:[],pm1:[],pm25:[],pm10:[],avg:[]};
-        m[k].temp.push(d.temp); m[k].hum.push(d.hum); m[k].avg.push(d.avg);
-        m[k].pm1.push(d.pm1);  m[k].pm25.push(d.pm25); m[k].pm10.push(d.pm10);
-    });
-    return Object.values(m).map(x=>({
-        year:x.year,
-        tAvg:AVG(x.temp),tMin:Math.min(...x.temp),tMax:Math.max(...x.temp),
-        hAvg:AVG(x.hum), hMin:Math.min(...x.hum), hMax:Math.max(...x.hum),
-        p1Avg:AVG(x.pm1),p1Min:Math.min(...x.pm1),p1Max:Math.max(...x.pm1),
-        p25Avg:AVG(x.pm25),p25Min:Math.min(...x.pm25),p25Max:Math.max(...x.pm25),
-        p10Avg:AVG(x.pm10),p10Min:Math.min(...x.pm10),p10Max:Math.max(...x.pm10),
-        aAvg:AVG(x.avg),aMin:Math.min(...x.avg),aMax:Math.max(...x.avg)
-    })).sort((a,b)=>a.year-b.year);
-}
-
-function updateYearly() {
-    if (!rawData.length) return;
-    const yf=document.getElementById('yFrom').value;
-    const yt=document.getElementById('yTo').value;
-    let data=[...rawData];
-    if(yf) data=data.filter(d=>d.dt.getFullYear()>=parseInt(yf));
-    if(yt) data=data.filter(d=>d.dt.getFullYear()<=parseInt(yt));
-    const agg=aggregateYearly(data);
-    // Roční grafy – použijeme linear osu X (roky jako čísla)
-    const defs=[
-        {n:'yT', id:'yTChart',  lbl:'Teplota',  c:'#f43f5e', avg:'tAvg',  min:'tMin',  max:'tMax'},
-        {n:'yH', id:'yHChart',  lbl:'Vlhkost',  c:'#3b82f6', avg:'hAvg',  min:'hMin',  max:'hMax'},
-        {n:'yP1',id:'yP1Chart', lbl:'PM1',      c:'#f59e0b', avg:'p1Avg', min:'p1Min', max:'p1Max'},
-        {n:'yP25',id:'yP25Chart',lbl:'PM2.5',   c:'#ef4444', avg:'p25Avg',min:'p25Min',max:'p25Max'},
-        {n:'yP10',id:'yP10Chart',lbl:'PM10',    c:'#8b5cf6', avg:'p10Avg',min:'p10Min',max:'p10Max'},
-        {n:'yA', id:'yAChart',  lbl:'Avg. vel.',c:'#06b6d4', avg:'aAvg',  min:'aMin',  max:'aMax'},
-    ];
-    defs.forEach(d=>{
-        if(charts[d.n]) charts[d.n].destroy();
-        const el=document.getElementById(d.id); if(!el) return;
-        charts[d.n]=new Chart(el,{
-            type:'bar',
-            data:{
-                labels:agg.map(x=>x.year),
-                datasets:[
-                    {label:'Průměr', data:agg.map(x=>x[d.avg]), backgroundColor:d.c+'cc', borderColor:d.c, borderWidth:2},
-                    {label:'Min',    data:agg.map(x=>x[d.min]), type:'line', borderColor:d.c+'88', borderWidth:1.5, pointRadius:4, fill:false, borderDash:[4,3]},
-                    {label:'Max',    data:agg.map(x=>x[d.max]), type:'line', borderColor:d.c,     borderWidth:1.5, pointRadius:4, fill:false},
-                ]
-            },
-            options:{responsive:true,maintainAspectRatio:false,
-                plugins:{legend:{display:true,labels:{boxWidth:10,font:{size:10}}},zoom:ZO},
-                scales:{x:{ticks:{callback:v=>v}},y:{grid:{color:'rgba(0,0,0,.04)'}}}}
-        });
-    });
-    // Tabulka
-    const rows=agg.slice().reverse().map(x=>`<tr>
-        <td><strong>${x.year}</strong></td>
-        <td style="color:var(--temp)">${x.tAvg.toFixed(1)} / ${x.tMin.toFixed(1)} / ${x.tMax.toFixed(1)} °C</td>
-        <td style="color:var(--hum)">${x.hAvg.toFixed(0)} / ${x.hMin.toFixed(0)} / ${x.hMax.toFixed(0)} %</td>
-        <td style="color:var(--pm1)">${x.p1Avg.toFixed(1)}</td>
-        <td style="color:var(--pm25)">${x.p25Avg.toFixed(1)}</td>
-        <td style="color:var(--pm10)">${x.p10Avg.toFixed(1)}</td>
-    </tr>`).join('');
-    document.getElementById('yearlyTbody').innerHTML=rows||noData(6);
-}
 
 // ═══════════════════════════════════════════════════════
 //  TABS
@@ -1178,6 +1210,19 @@ function switchTab(name,btn){
     if(name==='monthly') updateMonthly();
     if(name==='yearly')  updateYearly();
     if(name==='heatmap') renderHeatmap(true);
+    if(name==='timelapse') loadTimelapse();
+}
+
+let timelapseLoaded=false;
+function loadTimelapse(){
+    if(timelapseLoaded) return;
+    timelapseLoaded=true;
+    const box=document.getElementById('timelapseBox');
+    box.innerHTML='<a name="windy-webcam-timelapse-player" data-id="1793919341" data-play="day" data-loop="0" data-auto-play="0" data-force-full-screen-on-overlay-play="0" data-interactive="1" href="https://windy.com/webcams/1793919341" target="_blank">Milovice › South: Komenského</a>';
+    const sc=document.createElement('script');
+    sc.async=true; sc.type='text/javascript';
+    sc.src='https://webcams.windy.com/webcams/public/embed/v2/script/player.js';
+    document.body.appendChild(sc);
 }
 
 // ═══════════════════════════════════════════════════════
